@@ -20,7 +20,7 @@ export class BunNodeTestStack extends cdk.Stack {
 
     const bunFunction = new lambda.Function(this, 'BunTestFunction', {
       runtime: lambda.Runtime.PROVIDED_AL2,
-      handler: 'bun.fetch',
+      handler: 'handler.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, 'lambdas')),
       architecture: lambda.Architecture.X86_64,
       layers: [lambdaBunLayer],
@@ -33,7 +33,7 @@ export class BunNodeTestStack extends cdk.Stack {
 
     const nodeFunction = new lambda.Function(this, 'NodeTestFunction', {
       runtime: lambda.Runtime.NODEJS_18_X,
-      handler: 'node.handler',
+      handler: 'handler.handler',
       code: lambda.Code.fromAsset(path.join(__dirname, 'lambdas')),
       architecture: lambda.Architecture.X86_64,
       timeout: cdk.Duration.seconds(30),
