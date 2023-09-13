@@ -1,5 +1,5 @@
 {
-  "app": "npx ts-node --prefer-ts-exts bin/bun-node-test.ts",
+  "app": "npx ts-node --prefer-ts-exts lib/bun-node-test-stack.ts",
   "watch": {
     "include": [
       "**"
