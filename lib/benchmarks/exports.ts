@@ -1,5 +1,5 @@
 import * as fs from 'fs';
-import { runtimes, testNames, memorySizes } from '../bun-node-test-stack';
+import { runtimes } from '../config';
 
 export function exportTestAveragesToCsv(
   testName: string,

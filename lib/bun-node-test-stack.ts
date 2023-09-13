@@ -2,16 +2,8 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
 import * as apigateway from 'aws-cdk-lib/aws-apigateway';
-import * as iam from 'aws-cdk-lib/aws-iam';
-import * as xray from 'aws-cdk-lib/aws-xray';
 import * as path from 'path';
-import { tests } from './lambdas/tests';
-// import * as sqs from 'aws-cdk-lib/aws-sqs';
-
-export const testNames = tests.map((test) => test.name);
-
-export const runtimes = ['bun', 'node'] as const;
-export const memorySizes = [128, 512, 1024] as const;
+import { runtimes, testNames, memorySizes } from './config';
 
 export class BunNodeTestStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
