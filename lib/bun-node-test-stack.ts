@@ -1,7 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
-import * as apigateway from "aws-cdk-lib/aws-apigateway";
+import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as xray from 'aws-cdk-lib/aws-xray';
 import * as path from 'path';
@@ -13,7 +13,9 @@ export class BunNodeTestStack extends cdk.Stack {
 
     const lambdaBunLayer = new lambda.LayerVersion(this, 'BunLayer', {
       removalPolicy: cdk.RemovalPolicy.RETAIN,
-      code: lambda.Code.fromAsset(path.join(__dirname, 'layers/bun-lambda-layer.zip')),
+      code: lambda.Code.fromAsset(
+        path.join(__dirname, 'layers/bun-lambda-layer.zip'),
+      ),
       compatibleArchitectures: [lambda.Architecture.X86_64],
       compatibleRuntimes: [lambda.Runtime.PROVIDED_AL2],
     });
@@ -43,16 +45,19 @@ export class BunNodeTestStack extends cdk.Stack {
       },
     });
 
-    const api = new apigateway.RestApi(this, "BunNodeTestApi", {
-      restApiName: "Bun Node Test Api",
-      description: "Tests Bun vs Node performance on Lambda",
+    const api = new apigateway.RestApi(this, 'BunNodeTestApi', {
+      restApiName: 'Bun Node Test Api',
+      description: 'Tests Bun vs Node performance on Lambda',
     });
 
     const bunResource = api.root.addResource('bun');
     bunResource.addMethod('GET', new apigateway.LambdaIntegration(bunFunction));
 
     const nodeResource = api.root.addResource('node');
-    nodeResource.addMethod('GET', new apigateway.LambdaIntegration(nodeFunction));
+    nodeResource.addMethod(
+      'GET',
+      new apigateway.LambdaIntegration(nodeFunction),
+    );
   }
 }
 
@@ -61,14 +66,11 @@ new BunNodeTestStack(app, 'BunNodeTestStack', {
   /* If you don't specify 'env', this stack will be environment-agnostic.
    * Account/Region-dependent features and context lookups will not work,
    * but a single synthesized template can be deployed anywhere. */
-
   /* Uncomment the next line to specialize this stack for the AWS Account
    * and Region that are implied by the current CLI configuration. */
   // env: { account: process.env.CDK_DEFAULT_ACCOUNT, region: process.env.CDK_DEFAULT_REGION },
-
   /* Uncomment the next line if you know exactly what Account and Region you
    * want to deploy the stack to. */
   // env: { account: '123456789012', region: 'us-east-1' },
-
   /* For more information, see https://docs.aws.amazon.com/cdk/latest/guide/environments.html */
 });
