@@ -8,3 +8,5 @@ results/*
 cdk.out
 
 .DS_Store
+
+lib/config.ts
