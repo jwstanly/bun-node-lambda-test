@@ -8,10 +8,10 @@ import * as path from 'path';
 import { tests } from './lambdas/tests';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
 
-const testNames = tests.map((test) => test.name);
+export const testNames = tests.map((test) => test.name);
 
-const runtimes = ['bun', 'node'] as const;
-const memorySizes = [128, 512, 1024] as const;
+export const runtimes = ['bun', 'node'] as const;
+export const memorySizes = [128, 512, 1024] as const;
 
 export class BunNodeTestStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
