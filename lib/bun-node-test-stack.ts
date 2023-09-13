@@ -5,7 +5,12 @@ import * as apigateway from 'aws-cdk-lib/aws-apigateway';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import * as xray from 'aws-cdk-lib/aws-xray';
 import * as path from 'path';
+import { tests } from './lambdas/tests';
 // import * as sqs from 'aws-cdk-lib/aws-sqs';
+
+const runtimes = ['bun', 'node'] as const;
+const testNames = tests.map((test) => test.name);
+const memorySizes = [1024] as const;
 
 export class BunNodeTestStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props?: cdk.StackProps) {
@@ -20,46 +25,50 @@ export class BunNodeTestStack extends cdk.Stack {
       compatibleRuntimes: [lambda.Runtime.PROVIDED_AL2],
     });
 
-    const bunFunction = new lambda.Function(this, 'BunTestFunction', {
-      runtime: lambda.Runtime.PROVIDED_AL2,
-      handler: 'handler.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, 'lambdas')),
-      architecture: lambda.Architecture.X86_64,
-      layers: [lambdaBunLayer],
-      timeout: cdk.Duration.seconds(30),
-      memorySize: 1024,
-      environment: {
-        RUNTIME: 'Bun',
-        TEST: 'sort-once',
-      },
-    });
-
-    const nodeFunction = new lambda.Function(this, 'NodeTestFunction', {
-      runtime: lambda.Runtime.NODEJS_18_X,
-      handler: 'handler.handler',
-      code: lambda.Code.fromAsset(path.join(__dirname, 'lambdas')),
-      architecture: lambda.Architecture.X86_64,
-      timeout: cdk.Duration.seconds(30),
-      memorySize: 1024,
-      environment: {
-        RUNTIME: 'Node',
-        TEST: 'sort-once',
-      },
-    });
-
     const api = new apigateway.RestApi(this, 'BunNodeTestApi', {
       restApiName: 'Bun Node Test Api',
       description: 'Tests Bun vs Node performance on Lambda',
     });
 
-    const bunResource = api.root.addResource('bun');
-    bunResource.addMethod('GET', new apigateway.LambdaIntegration(bunFunction));
+    for (const runtime of runtimes) {
+      const resource = api.root.addResource(runtime);
 
-    const nodeResource = api.root.addResource('node');
-    nodeResource.addMethod(
-      'GET',
-      new apigateway.LambdaIntegration(nodeFunction),
-    );
+      for (const testName of testNames) {
+        const testResource = resource.addResource(testName);
+
+        for (const memorySize of memorySizes) {
+          const testMemoryResource = testResource.addResource(
+            String(memorySize),
+          );
+
+          const bunFunction = new lambda.Function(
+            this,
+            `${runtime}-${testName}-${memorySize}-function`,
+            {
+              runtime:
+                runtime === 'bun'
+                  ? lambda.Runtime.PROVIDED_AL2
+                  : lambda.Runtime.NODEJS_18_X,
+              handler: 'handler.handler',
+              code: lambda.Code.fromAsset(path.join(__dirname, 'lambdas')),
+              architecture: lambda.Architecture.X86_64,
+              layers: runtime === 'bun' ? [lambdaBunLayer] : [],
+              timeout: cdk.Duration.seconds(30),
+              memorySize: memorySize,
+              environment: {
+                RUNTIME: runtime,
+                TEST: testName,
+              },
+            },
+          );
+
+          testMemoryResource.addMethod(
+            'GET',
+            new apigateway.LambdaIntegration(bunFunction),
+          );
+        }
+      }
+    }
   }
 }
 
