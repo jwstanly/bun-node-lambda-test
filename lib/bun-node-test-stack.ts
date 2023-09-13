@@ -30,6 +30,7 @@ export class BunNodeTestStack extends cdk.Stack {
       memorySize: 1024,
       environment: {
         RUNTIME: 'Bun',
+        TEST: 'sort-once',
       },
     });
 
@@ -42,6 +43,7 @@ export class BunNodeTestStack extends cdk.Stack {
       memorySize: 1024,
       environment: {
         RUNTIME: 'Node',
+        TEST: 'sort-once',
       },
     });
 
