@@ -28,11 +28,9 @@ export function exportTestAveragesToCsv(
   fs.writeFileSync(getPath(`${Date.now()}-${testName}.csv`), csvString);
 }
 
-export function exportAllDataToJson(
-  results: Record<string, Record<string, Record<string, number[]>>>,
-) {
+export function exportToJson(results: any, type: string) {
   fs.writeFileSync(
-    getPath(`${Date.now()}.json`),
+    getPath(`${Date.now()}-${type}.json`),
     JSON.stringify(results, null, 2),
   );
 }
@@ -56,6 +54,24 @@ export function recordResult(
     results[testName][memorySize][runtime] = [];
   }
   results[testName][memorySize][runtime].push(time);
+}
+
+export function recordColdStart(
+  coldStarts: Record<string, Record<string, number[]>>,
+  route: string,
+  executionTime: number,
+  responseTime: number,
+) {
+  const [runtime, testName, memorySize] = route.split('/');
+
+  if (!coldStarts[memorySize]) {
+    coldStarts[memorySize] = {};
+  }
+  if (!coldStarts[memorySize][runtime]) {
+    coldStarts[memorySize][runtime] = [];
+  }
+
+  coldStarts[memorySize][runtime].push(responseTime - executionTime);
 }
 
 function getPath(fileName: string) {
